@@ -15,5 +15,8 @@
   },
   "scripts": {
     "dev": "node --watch index.js"
+  },
+  "devDependencies": {
+    "ejs-cli": "^2.2.3"
   }
 }

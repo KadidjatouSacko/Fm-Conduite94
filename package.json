@@ -15,8 +15,11 @@
   },
   "scripts": {
     "dev": "node --watch index.js"
-  },
+  }, 
   "devDependencies": {
-    "ejs-cli": "^2.2.3"
+    "ejs-cli": "^2.2.3",
+    "deploy": "gh-pages -d public",
+      "start": "node index.js",
+      "gh-pages": "^6.3.0"
   }
 }

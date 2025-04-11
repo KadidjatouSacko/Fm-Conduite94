@@ -1,0 +1,41 @@
+<%- include('partials/header.ejs') %>
+<link rel="stylesheet" href="/css/contact.css">
+<div class="page">
+  <div class="contact-container">
+    <div class="contact-form-card">
+      <h1>🚗 Tu veux passer le permis ?</h1>
+      <p>Écris-nous, on te répond vite !</p>
+      
+      <!-- Formulaire de contact -->
+      <form id="contactForm" action="/contact" method="POST" enctype="multipart/form-data">
+        <div class="form-row">
+          <input type="text" name="firstname" placeholder="Prénom" required>
+          <input type="text" name="lastname" placeholder="Nom" required>
+        </div>
+
+        <input type="email" name="email" placeholder="Email" required>
+
+        <input type="tel" name="phone" placeholder="Téléphone" pattern="[0-9]{10}" maxlength="10" required>
+
+        <select name="reason" required>
+          <option value="" disabled selected>-- Pourquoi tu nous contactes ? --</option>
+          <option value="inscription">Je veux m'inscrire</option>
+          <option value="infos">Je veux des infos</option>
+          <option value="aide">J'ai un souci</option>
+          <option value="autre">Autre</option>
+        </select>
+
+        <textarea name="message" placeholder="Ton message ici..." rows="4" required></textarea>
+        
+        <label for="file" class="file-label">📎 Ajouter un document (facultatif)</label>
+        <input type="file" name="file" id="file">
+
+
+        <button type="submit">🚀 Envoyer</button>
+      </form>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer.ejs') %>
+</body>
+</html>

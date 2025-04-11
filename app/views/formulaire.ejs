@@ -1,0 +1,200 @@
+<%- include('partials/header.ejs') %>
+<link rel="stylesheet" href="/css/formulaire.css">
+<body>
+    <div class="rendezvous-container">
+        <h1>🚗 Je prends rendez-vous</h1>
+        <p>Choisis le motif de ton rendez-vous et remplis les infos demandées. On s'occupe du reste !</p>
+        
+        <% if (locals.errorMessage) { %>
+          <div class="alert error"><%= errorMessage %></div>
+        <% } %>
+        
+        <% if (locals.successMessage) { %>
+          <div class="alert success"><%= successMessage %></div>
+        <% } %>
+        
+        <!-- Formulaire de prise de rendez-vous -->
+        <form id="appointmentForm" action="/rendezvous" method="POST" enctype="multipart/form-data">
+          <div class="form-row">
+            <h2>Informations Personnelles</h2>
+            <div class="info-row">
+              <input type="text" name="firstname" placeholder="Prénom" required value="<%= locals.formData ? formData.firstname : '' %>" aria-label="Prénom">
+              <input type="text" name="lastname" placeholder="Nom" required value="<%= locals.formData ? formData.lastname : '' %>" aria-label="Nom">
+            </div>
+            <input type="tel" name="phone" placeholder="Numéro de téléphone" pattern="[0-9]{10}" maxlength="10" required value="<%= locals.formData ? formData.phone : '' %>" aria-label="Numéro de téléphone">
+            <input type="email" name="email" placeholder="Email" required value="<%= locals.formData ? formData.email : '' %>" aria-label="Email">
+          </div>
+          
+          <div class="form-row">
+            <label for="motif" class="required-field">Motif du rendez-vous</label>
+            <select name="reason" id="motif" required aria-required="true">
+              <option value="" disabled <%= !locals.formData || !formData.reason ? 'selected' : '' %>>-- Choisis ton motif --</option>
+              <option value="simulateur" <%= locals.formData && formData.reason === 'simulateur' ? 'selected' : '' %>>Rendez-vous simulateur de conduite</option>
+              <option value="renseignement" <%= locals.formData && formData.reason === 'renseignement' ? 'selected' : '' %>>Rendez-vous renseignement</option>
+              <option value="evaluation" <%= locals.formData && formData.reason === 'evaluation' ? 'selected' : '' %>>Heure d'évaluation</option>
+              <option value="autre" <%= locals.formData && formData.reason === 'autre' ? 'selected' : '' %>>Autre</option>
+            </select>
+          </div>
+          
+          <!-- Questions supplémentaires pour les simulateurs et évaluations -->
+          <div id="simulateurEvalQuestions" class="conditional-section">
+            <h2>Questions supplémentaires</h2>
+            <label for="conduit" class="required-field">As-tu déjà conduit ?</label>
+            <select name="conduit" id="conduit" aria-required="true">
+              <option value="oui" <%= locals.formData && formData.conduit === 'oui' ? 'selected' : '' %>>Oui</option>
+              <option value="non" <%= locals.formData && formData.conduit === 'non' ? 'selected' : '' %>>Non</option>
+            </select>
+            
+            <label for="code" class="required-field">Possèdes-tu ton code de la route ?</label>
+            <select name="code" id="code" aria-required="true">
+              <option value="oui" <%= locals.formData && formData.code === 'oui' ? 'selected' : '' %>>Oui</option>
+              <option value="non" <%= locals.formData && formData.code === 'non' ? 'selected' : '' %>>Non</option>
+            </select>
+            
+            <div class="information-box">
+              <p><strong>Important :</strong> L'heure doit être réglée au maximum 48h avant le rendez-vous.</p>
+            </div>
+          </div>
+          
+          <h2>Date et heure souhaitées</h2>
+          <div class="date-time-picker">
+            <input type="date" name="date" id="date" required value="<%= locals.formData ? formData.date : '' %>" min="<%= new Date().toISOString().split('T')[0] %>" aria-label="Date du rendez-vous">
+            <input type="time" name="time" id="time" required value="<%= locals.formData ? formData.time : '' %>" aria-label="Heure du rendez-vous">
+          </div>
+          
+          <!-- Moyen de paiement (affiché seulement pour simulateur et évaluation) -->
+          <div id="paymentMethods" class="conditional-section">
+            <h2>Moyen de paiement</h2>
+            <input type="hidden" name="paymentMethod" id="paymentMethodInput" value="<%= locals.formData ? formData.paymentMethod : '' %>">
+            
+            <div class="payment-methods">
+              <div class="payment-method <%= locals.formData && formData.paymentMethod === 'cb' ? 'selected' : '' %>" 
+                   data-method="cb" id="paymentCB" tabindex="0" role="radio" 
+                   aria-checked="<%= locals.formData && formData.paymentMethod === 'cb' ? 'true' : 'false' %>">
+                <img src="/images/card-icon.png" alt="" onerror="this.src='https://via.placeholder.com/50x50?text=CB'">
+                <span>Carte Bleue</span>
+              </div>
+              
+              <div class="payment-method <%= locals.formData && formData.paymentMethod === 'cash' ? 'selected' : '' %>" 
+                   data-method="cash" id="paymentCash" tabindex="0" role="radio" 
+                   aria-checked="<%= locals.formData && formData.paymentMethod === 'cash' ? 'true' : 'false' %>">
+                <img src="/images/cash-icon.png" alt="" onerror="this.src='https://via.placeholder.com/50x50?text=€'">
+                <span>Espèces</span>
+              </div>
+            </div>
+          </div>
+          
+          <label for="file">📎 Ajouter un document (facultatif)</label>
+          <input type="file" name="file" id="file" aria-label="Document à joindre">
+          
+          <label for="comments">Commentaires (facultatif)</label>
+          <textarea name="comments" id="comments" rows="3" placeholder="Informations supplémentaires..." 
+                    aria-label="Commentaires"><%= locals.formData ? formData.comments : '' %></textarea>
+          
+          <button type="submit" id="submitBtn">
+            🚀 Confirmer le rendez-vous
+            <span class="spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+      </div>
+      
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          // Gestion du motif de rendez-vous
+          const motifSelect = document.getElementById('motif');
+          const simulateurEvalQuestions = document.getElementById('simulateurEvalQuestions');
+          const paymentMethods = document.getElementById('paymentMethods');
+          const conduitSelect = document.getElementById('conduit');
+          const codeSelect = document.getElementById('code');
+          
+          // Initialisation basée sur la valeur sélectionnée au chargement de la page
+          checkMotifSelection();
+          
+          motifSelect.addEventListener('change', checkMotifSelection);
+          
+          function checkMotifSelection() {
+            const selectedMotif = motifSelect.value;
+            if (selectedMotif === 'simulateur' || selectedMotif === 'evaluation') {
+              simulateurEvalQuestions.classList.add('visible');
+              paymentMethods.classList.add('visible');
+              conduitSelect.setAttribute('required', 'required');
+              codeSelect.setAttribute('required', 'required');
+            } else {
+              simulateurEvalQuestions.classList.remove('visible');
+              paymentMethods.classList.remove('visible');
+              conduitSelect.removeAttribute('required');
+              codeSelect.removeAttribute('required');
+            }
+          }
+          
+          // Gestion des méthodes de paiement
+          const paymentMethodInput = document.getElementById('paymentMethodInput');
+          const paymentOptions = document.querySelectorAll('.payment-method');
+          
+          paymentOptions.forEach(option => {
+            // Click event
+            option.addEventListener('click', function() {
+              selectPaymentMethod(this);
+            });
+            
+            // Keyboard event for accessibility
+            option.addEventListener('keydown', function(e) {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                selectPaymentMethod(this);
+              }
+            });
+          });
+          
+          function selectPaymentMethod(selectedOption) {
+            // Supprimer la classe selected et mise à jour ARIA de toutes les options
+            paymentOptions.forEach(opt => {
+              opt.classList.remove('selected');
+              opt.setAttribute('aria-checked', 'false');
+            });
+            
+            // Ajouter la classe selected et mise à jour ARIA à l'option sélectionnée
+            selectedOption.classList.add('selected');
+            selectedOption.setAttribute('aria-checked', 'true');
+            
+            // Mettre à jour le champ caché avec la valeur sélectionnée
+            paymentMethodInput.value = selectedOption.getAttribute('data-method');
+          }
+          
+          // Validation de la date (ne pas permettre de dates dans le passé)
+          const dateInput = document.getElementById('date');
+          const today = new Date().toISOString().split('T')[0];
+          dateInput.setAttribute('min', today);
+          
+          // Validation du formulaire avant soumission
+          const form = document.getElementById('appointmentForm');
+          const submitBtn = document.getElementById('submitBtn');
+          
+          form.addEventListener('submit', function(event) {
+            const selectedMotif = motifSelect.value;
+            
+            // Vérifier si le motif nécessite un moyen de paiement
+            if ((selectedMotif === 'simulateur' || selectedMotif === 'evaluation') && !paymentMethodInput.value) {
+              event.preventDefault();
+              alert('Veuillez sélectionner un moyen de paiement');
+              return false;
+            }
+            
+            // Ajouter l'animation de chargement au bouton
+            submitBtn.classList.add('loading');
+          });
+          
+          // Préchargement des images pour les moyens de paiement
+          function preloadImage(url) {
+            const img = new Image();
+            img.src = url;
+          }
+          
+          preloadImage('/images/card-icon.png');
+          preloadImage('/images/cash-icon.png');
+        });
+      </script>
+
+<%- include('partials/footer.ejs') %>
+</body>
+</html>

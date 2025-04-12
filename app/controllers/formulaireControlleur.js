@@ -5,7 +5,7 @@ export const formulaireController = {
 
 showForm : (req, res) => {
     const title = "Formulaire"
-    res.render('formulaire', {title});
+    res.render('formulaire.html', {title});
 },
 
 // Gérer la soumission du formulaire de rendez-vous

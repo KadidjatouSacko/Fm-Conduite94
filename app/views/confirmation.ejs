@@ -1,15 +1,18 @@
 <%- include('partials/header.ejs') %>
-<body>
-  <h1>Merci pour ta demande 🚗</h1>
-  <p><strong>Nom :</strong> <%= firstname %> <%= lastname %></p>
-  <p><strong>Email :</strong> <%= email %></p>
-  <p><strong>Téléphone :</strong> <%= phone %></p>
-  <p><strong>Raison :</strong> <%= reason %></p>
-  <p><strong>Message :</strong> <%= message %></p>
-  <% if (file) { %>
-    <p><strong>Document :</strong> <a href="/uploads/<%= file %>">Télécharger</a></p>
-  <% } %>
 
+<link rel="stylesheet" href="/css/confirmation.css">
+<body>
+  <div class="confirmation-card">
+    <h1>Merci pour ta demande! 🚗</h1>
+    <p><strong>Nom :</strong> <%= firstname %> <%= lastname %></p>
+    <p><strong>Email :</strong> <%= email %></p>
+    <p><strong>Téléphone :</strong> <%= phone %></p>
+    <p><strong>Raison :</strong> <%= reason %></p>
+    <p><strong>Message :</strong> <%= message %></p>
+    <% if (file) { %>
+      <p><strong>Document :</strong> <a href="/uploads/<%= file %>">Télécharger</a></p>
+    <% } %>
+  </div>
   <%- include('partials/footer.ejs') %>
 </body>
 </html>

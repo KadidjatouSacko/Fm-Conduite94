@@ -5,7 +5,7 @@ export const mainController = {
     
         const title = "Acceuil"
         const css = "home"
-        res.render("home", {title, css});
+        res.render("index", {title, css});
     },
     
 };

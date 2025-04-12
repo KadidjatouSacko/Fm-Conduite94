@@ -6,6 +6,8 @@ import multer from "multer";
 import path from "path";
 import { machine } from "os";
 import { mainController } from "./controllers/maincontroller.js";
+import { priceController } from "./controllers/priceController.js";
+import { faqController } from "./controllers/faqController.js";
 
 export const router = Router(); // export nommé
 
@@ -46,3 +48,7 @@ router.get('/rendezvous', formulaireController.showForm);
 
 // Route pour traiter le formulaire de rendez-vous
 router.post('/rendezvous', formulaireController.handleForm);
+
+router.get('/tarifs', priceController.PricePage)
+
+router.get("/faq", faqController.GetFaq)
